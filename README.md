@@ -31,7 +31,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 You’ll need analytics data credentials; this is a JSON file available in the Google Analytics Profile.  Copy that to the `./config/analytics.json`.
 
-You’ll need to add the path to that file to your ENV: (e.g. `export ANALYTICS_DATA_CREDENTIALS=./config/analytics.json`).  This is created on the https://console.cloud.google.com/apis/credentials page.  
+You’ll need to add the path to that file to your ENV: (e.g. `export ANALYTICS_DATA_CREDENTIALS=./config/analytics.json`).  This is created on the https://console.cloud.google.com/apis/credentials page.
 
 - You’ll need to select a project
 - Then create/edit a service account

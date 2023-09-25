@@ -19,8 +19,8 @@ module Hyrax
           # with the "properties/" string.
           property: "properties/395286330",
           date_ranges: [{ start_date: "2023-08-01", end_date: "2023-09-24" }],
-          dimensions: [{ name: 'date' }, { name: 'itemId' }],
-          metrics: [{ name: 'itemsViewed' }]
+          dimensions: [{ name: 'date' }, { name: 'pagePath' }],
+          metrics: [{ name: 'screenPageViews' }]
         )
 
         response = client.run_report request

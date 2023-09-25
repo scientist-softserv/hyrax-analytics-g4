@@ -27,6 +27,27 @@ After checking out the repo, run `bin/setup` to install dependencies. You can al
 
 To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
+### Querying Data
+
+You’ll need analytics data credentials; this is a JSON file available in the Google Analytics Profile.  Copy that to the `./config/analytics.json`.
+
+You’ll need to add the path to that file to your ENV: (e.g. `export ANALYTICS_DATA_CREDENTIALS=./config/analytics.json`).  This is created on the https://console.cloud.google.com/apis/credentials page.  
+
+- You’ll need to select a project
+- Then create/edit a service account
+- Then choose the Keys tab within the service account
+- Finally click Add Key
+
+That will prompt you to download a JSON file.
+
+As of <2023-09-25 Mon>, I run the following between each change:
+
+- `bin/console` :: Boot up the bundler environment.
+- `G4.call` :: A quick alias for querying the analytics.
+
+I have not yet successfully retrieved any data, but that might be because there’s some configuration issue.
+
+
 ## Contributing
 
 TODO: Something something submit issues/pull requests.

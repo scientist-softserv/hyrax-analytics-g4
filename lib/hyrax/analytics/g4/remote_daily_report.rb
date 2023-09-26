@@ -34,15 +34,6 @@ module Hyrax
           new(**kwargs).call
         end
 
-        # Yes there are duplications; this is because in some cases when I got to the work I see the
-        # Image Viewer and that counts as requesting it as well as investigating it.
-        EVENT_NAME_INVESTIGATIONS = ["work-view"]
-        EVENT_NAME_REQUESTS = ["work-view",
-                               "file-set-download",
-                               "work-in-collection-download",
-                               "file-set-in-work-download",
-                               "file-set-in-collection-download"]
-
         ##
         # @param credentials [String, Hash] the credentials necessary for authenticating to the
         #        Google Analytics API.
@@ -64,14 +55,14 @@ module Hyrax
         # @param limit [Integer]
         # @param offset [Integer]
         # @param event_names [Array<String>]
-        def initialize(credentials: "./config/analytics.json",
+        def initialize(event_names:,
+                       start_date:,
+                       host_name:,
+                       end_date:,
+                       credentials: "./config/analytics.json",
                        property: "395286330",
-                       host_name: "dev.commons-archive.org",
-                       start_date: Date.new(2023,8,1),
-                       end_date: Date.new(2023,9,24),
                        limit: 25_000,
-                       offset: 0,
-                       event_names: EVENT_NAME_REQUESTS + EVENT_NAME_INVESTIGATIONS)
+                       offset: 0)
           @client = ::Google::Analytics::Data::V1beta::AnalyticsData::Client.new do |config|
             config.credentials = case credentials
                                  when String

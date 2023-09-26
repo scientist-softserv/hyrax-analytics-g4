@@ -26,6 +26,8 @@ module Hyrax
         attr_reader :start_date, :end_date, :cname, :property
         alias host_name cname
 
+        ##
+        # @return [Array<String>]
         def event_names
           (event_names_for_investigations + event_names_for_investigations).uniq
         end

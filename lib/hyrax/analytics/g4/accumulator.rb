@@ -5,11 +5,12 @@ module Hyrax
         def initialize(importer:)
           @set = {}
           @importer = importer
+          @row_coercer = G4.row_coercer
         end
-        attr_reader :importer
+        attr_reader :importer, :row_coercer
 
         def add(row)
-          # TODO: Do we need to coerce the ID to a work?  Are all ID's works?  Seems unlikely.
+          row = row_coercer.call(row)
           if @set.key?(row.id)
             @set[row.id].add(row)
           else

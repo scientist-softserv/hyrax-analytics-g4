@@ -43,7 +43,7 @@ That will prompt you to download a JSON file.
 As of <2023-09-25 Mon>, I run the following between each change:
 
 - `bin/console` :: Boot up the bundler environment.
-- `G4.call` :: A quick alias for querying the analytics.
+- `Report.call` :: A quick alias for querying the analytics.
 
 I have not yet successfully retrieved any data, but that might be because there’s some configuration issue.
 

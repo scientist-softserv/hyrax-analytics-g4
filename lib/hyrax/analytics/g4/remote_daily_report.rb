@@ -30,8 +30,8 @@ module Hyrax
         # @see #initialize
         # @see #call
         # @return [Array<Row>]
-        def self.call(**kwargs)
-          new(**kwargs).call
+        def self.call(**kwargs, &block)
+          new(**kwargs).call(&block)
         end
 
         ##
@@ -98,8 +98,6 @@ module Hyrax
         ##
         # @return [Array<CounterMetricsReport::Row>] sorted by {CounterMetricsReport::Row#sort_order}
         def call
-          returning_value = []
-
           loop do
             # For details on the schema: https://developers.google.com/analytics/devguides/reporting/data/v1/api-schema
             # For examples in the wild: https://github.com/JasonBarnabe/greasyfork/blob/master/lib/google_analytics.rb
@@ -107,7 +105,7 @@ module Hyrax
               property: "properties/#{property}",
               date_ranges: [{ start_date: start_date.iso8601, end_date: end_date.iso8601 }],
               # NOTE: The order of dimensions and metrics matter; because the return results will be rows
-              dimensions: [{ name: 'date' }, { name: 'eventName' }, { name: 'pagePath' }, { name: 'hostName' }],
+              dimensions: [{ name: 'pagePath' }, { name: 'date' }, { name: 'eventName' }, { name: 'hostName' }],
               metrics: [{ name: 'eventCount' }],
               ##
               # See https://developers.google.com/analytics/devguides/reporting/data/v1/advanced#weekly_cohorts_and_using_cohorts_with_other_api_features
@@ -127,28 +125,22 @@ module Hyrax
               offset: offset
             )
             results = client.run_report(request)
-
-            this_results = results.rows.map do |result|
+            results.rows.each do |result|
               # The position of the dimension values is based on the order in which they are specified
               # above.
-              Row.new(
-                date: Date.parse(result.dimension_values[0].value),
-                event_name: result.dimension_values[1].value,
-                page_path: result.dimension_values[2].value,
+              row = Row.new(
+                page_path: result.dimension_values[0].value,
+                date: Date.parse(result.dimension_values[1].value),
+                event_name: result.dimension_values[2].value,
                 host_name: result.dimension_values[3].value,
                 event_count: result.metric_values[0].value.to_i
               )
+              yield(row)
             end
 
-            returning_value += this_results
-            # No sense making another request if got less than the limit.
-            break if this_results.size < limit
+            break if results.rows.size < limit
             offset += limit
           end
-
-          ##
-          # For later processing we'll be looping through in order.
-          returning_value.sort_by(&:id)
         end
       end
     end

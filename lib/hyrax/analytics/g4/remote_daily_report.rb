@@ -23,7 +23,7 @@ module Hyrax
       #
       # @see #call
       # @see https://developers.google.com/analytics/devguides/reporting/data/v1/api-schema# For details on the dimensions and metrics schema
-      class CounterMetricsReport
+      class RemoteDailyReport
         ##
         # A convenience method for querying Google Analytics.
         #

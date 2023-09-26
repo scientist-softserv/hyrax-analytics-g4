@@ -9,10 +9,10 @@ module Hyrax
     module G4
       class Error < StandardError; end
 
-      autoload :CounterMetricsReport, "hyrax/analytics/g4/counter_metrics_report"
+      autoload :RemoteDailyReport, "hyrax/analytics/g4/remote_daily_report"
     end
   end
 end
 
 # Provided as a convenience method for typing and testing.
-Report = Hyrax::Analytics::G4::CounterMetricsReport
+Report = Hyrax::Analytics::G4::RemoteDailyReport

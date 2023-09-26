@@ -55,14 +55,11 @@ module Hyrax
         # @param limit [Integer]
         # @param offset [Integer]
         # @param event_names [Array<String>]
-        def initialize(event_names:,
-                       start_date:,
-                       host_name:,
-                       end_date:,
+        def initialize(importer:,
                        credentials: "./config/analytics.json",
-                       property: "395286330",
                        limit: 25_000,
-                       offset: 0)
+                       offset: 0,
+                       **kwargs)
           @client = ::Google::Analytics::Data::V1beta::AnalyticsData::Client.new do |config|
             config.credentials = case credentials
                                  when String
@@ -75,15 +72,12 @@ module Hyrax
                                    credentials
                                  end
           end
-          @end_date = end_date
-          @event_names = event_names
-          @host_name = host_name
+          @importer = importer
           @limit = limit
           @offset = offset
-          @property = property
-          @start_date = start_date
         end
-        attr_reader :client, :end_date, :event_names, :host_name, :limit, :offset, :property, :start_date
+        attr_reader :client, :limit, :offset, :importer
+        delegate :end_date, :event_names, :host_name, :property, :start_date, to: :importer
 
         ##
         # Creating a Struct so we can see what the data is instead of relying on the positional nature
@@ -99,9 +93,6 @@ module Hyrax
           # Later in processing, we're going to want to lookup the work/fileSet by ID and we'll want
           # to aggregate the events that are part of {EVENT_NAME_REQUESTS} and
           # {EVENT_NAME_INVESTIGATIONS} to create a single record in {Hyrax::Counter}.
-          def sort_order
-            [id, date]
-          end
         end
 
         ##
@@ -157,7 +148,7 @@ module Hyrax
 
           ##
           # For later processing we'll be looping through in order.
-          returning_value.sort_by(&:sort_order)
+          returning_value.sort_by(&:id)
         end
       end
     end

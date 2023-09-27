@@ -18,7 +18,8 @@ module Hyrax
           module Hyrax
             def __persist!(attributes:)
               keys = attributes.slice(:work_id, :date)
-              record = Hyrax::CounterMetric.find_by(**keys) || Hyrax::CounterMetri.new(**keys)
+              record = ::Hyrax::CounterMetric.find_by(**keys) || ::Hyrax::CounterMetric.new(**keys)
+
               record.update(attributes.except(:work_id, :date))
             end
           end
@@ -31,11 +32,11 @@ module Hyrax
             # rubocop:enable Rails/Output
           end
         end
-        if defined?(Rails)
-          CounterMetricsPersister.extend(ClassMethods::Hyrax)
-        else
-          CounterMetricsPersister.extend(ClassMethods::Test)
-        end
+      end
+      if defined?(Rails)
+        CounterMetricsPersister.extend(CounterMetricsPersister::ClassMethods::Hyrax)
+      else
+        CounterMetricsPersister.extend(CounterMetricsPersister::ClassMethods::Test)
       end
     end
   end

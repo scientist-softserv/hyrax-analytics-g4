@@ -31,12 +31,11 @@ There are a few points of configuration:
 
 ### Testing with Hyrax and/or Hyku
 
-I'm in the process of testing both jobs and the general inline functionality.  In a Hyku application, I'm using the following "test script" written in `bin/test-analytics` (remember `chmod +x bin/test-analytics`:
+I'm in the process of testing both jobs and the general inline functionality.  In a Hyku application, I'm using the following "test script" written in `bin/test-analytics` and can then call it with `bin/rails runner bin/test-analytics`:
 
 ```ruby
-#!/usr/bin/env ruby
-
-require_relative '../config/boot'
+# I need to provide this because without it, I'm not actually loading the parser.
+require Hyrax::Engine.root.join('app/services/hyrax/analytics.rb')
 
 # Don't try to query Google Analytics but instead rely on fake data.
 Hyrax::Analytics::G4::RemoteDailyReport.report_builder_class = Hyrax::Analytics::G4::RemoteDailyReport::Fake
@@ -47,14 +46,14 @@ Hyrax::Analytics::G4::RemoteDailyReport.report_builder_class = Hyrax::Analytics:
 # We do not need to declare the lambda within the account loop, because that *should* be handled
 # in the Account#switch!
 Hyrax::Analytics::G4::RemoteDailyReport::Fake.page_path_generator = -> do
-  GenericWork.all(limit: 20).map { |work| "/concern/generic_work/#{work.id}" } + 
-  (1..10).map { "/concern/something/#{SecureRandom.base36(8)}" }
+  GenericWork.all.map { |work| "/concern/generic_work/#{work.id}" } +
+  (1..10).map { "/concern/something/#{SecureRandom.base64(12)}" }
 end
 
-Account.all.each do |account|
-  account.switch! do
-    Hyrax::Analytics::G4::CounterMetricImporter.call(host_name: account.cname, property: '1234', credentials: nil)
-  end
+Account.find_each do |account|
+  switch!(account.cname)
+
+  Hyrax::Analytics::G4::CounterMetricImporter.call(cname: account.cname, property: '1234', credentials: nil, start_date: 8.days.ago.to_date)
 end
 ```
 

@@ -1,8 +1,14 @@
 # frozen_string_literal: true
 
 require_relative "g4/version"
-require "google/analytics/data/v1beta"
 require 'active_support/all'
+
+begin
+  require "google/analytics/data/v1beta"
+rescue LoadError
+  $stderr.puts "Unable to load 'google/analytics/data/v1beta'; this is okay unless you're trying to query live data."
+end
+
 require_relative 'g4/railtie' if defined?(Rails)
 
 module Hyrax
@@ -33,7 +39,7 @@ module Hyrax
       #     config.limit_to_this_many_days = 2
       #   end
       def self.config
-        @config ||= Configuration.new
+        @config ||= G4::Configuration.new
         yield(@config) if block_given?
         @config
       end
@@ -46,7 +52,7 @@ module Hyrax
       #
       # @see G4::Configuration#coercer_for
       def self.coerce_metadata(key:, value:)
-        coercer = config.coercer_for(key)
+        coercer = config.metadata_coercer_for(key)
         coercer.call(value)
       end
 

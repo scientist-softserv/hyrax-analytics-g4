@@ -32,8 +32,8 @@ module Hyrax
           # @return [NilClass] when we don't find a match in SOLR
           def fetch(id)
             solr_keys = G4.attribute_names_to_solr_names.values.map(&:to_s)
-            document = ActiveFedora::SolrService.query("id:#{id}", { rows: 1, fl: solr_keys.join(", "), method: :post }).first
-            return if doc.blank?
+            document = ActiveFedora::SolrService.query("id:#{id}", { rows: 1, fl: solr_keys, method: :post }).first
+            return if document.blank?
 
             attributes = G4.attribute_names_to_solr_names.each_with_object({}) do |(attribute_name, solr_field), hash|
               hash[attribute_name] = G4.coerce_metadata(key: attribute_name, value: document[solr_field.to_s])

@@ -11,60 +11,64 @@ module Hyrax
         def initialize(importer:)
           @set = {}
           @importer = importer
-          @row_coercer = G4.row_coercer
+          @work_metadata_map = {}
         end
-        attr_reader :importer, :row_coercer
+        attr_reader :importer
 
         ##
         # @param row [G4::RemoteDailyReport::Row]
         def add(row)
-          row = row_coercer.call(row)
-          if @set.key?(row.id)
-            @set[row.id].add(row)
+          # Given that we're working with are working with files sets and works, we want to have the
+          # associated **work** metadata.
+          work_metadata = @work_metadata_map.fetch(row.id) { WorkMetadata.fetch(row.id) }
+          @work_metadata_map[row.id] = work_metadata unless @work_metadata_map.key?(row.id)
+
+          return unless work_metadata
+
+          if @set.key?(work_metadata.work_id)
+            @set[work_metadata.work_id].add(row)
           else
-            @set[row.id] = Accumulator::Row.new(row: row, importer: importer)
+            @set[work_metadata.work_id] = Accumulator::WorkMetricsSet.new(work_metadata: work_metadata, row: row, importer: importer)
           end
         end
 
         include Enumerable
+        ##
+        # @yieldparam work_id [String]
+        # @yieldparam work_metrics_set [Accumulator::WorkMetricsSet]
         def each
-          @set.each do |key, accumulator|
-            yield(key, accumulator)
+          @set.each do |work_id, work_metrics_set|
+            yield(work_id, work_metrics_set)
           end
         end
 
-        def as_json
-          @set.map do |key, value|
-            { key => value.metrics }
-          end
-        end
-
-        class Row
+        class WorkMetricsSet
           ##
-          # @param row [G4::Row, Object<#id, #date, #event_count>]
+          # @param work_metadata [G4::WorkMetadata]
+          # @param row [G4::RemoteDailyReport::Row, Object<#id, #date, #event_count>]
           # @param importer [CounterMetricImporter] necessary because the events that count as
           #        requests or investigations are known at the importer level.
-          def initialize(row:, importer:)
-            @id = row.id
+          def initialize(work_metadata:, row:, importer:)
             @importer = importer
+            @work_metadata = work_metadata
             @rows = {}
             add(row)
           end
 
-          attr_reader :id, :importer
+          attr_reader :importer, :work_metadata
 
           def add(row)
             @rows[row.date] ||= []
             @rows[row.date] << row
           end
 
-          def metrics
+          def records
             @rows.map do |date, rows|
-              {
+              work_metadata.to_h.merge(
                 date: date,
                 total_item_investigations: total_item_investigations(rows),
                 total_item_requests: total_item_requests(rows)
-              }
+              )
             end
           end
 

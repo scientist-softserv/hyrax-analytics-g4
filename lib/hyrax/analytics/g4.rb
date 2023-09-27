@@ -3,6 +3,7 @@
 require_relative "g4/version"
 require "google/analytics/data/v1beta"
 require 'active_support/all'
+require 'faker'
 
 module Hyrax
   module Analytics
@@ -10,22 +11,10 @@ module Hyrax
       class Error < StandardError; end
 
       autoload :Accumulator, "hyrax/analytics/g4/accumulator"
-      autoload :Configuration, "hyrax/analytics/g4/configuration"
       autoload :CounterMetricImporter, "hyrax/analytics/g4/counter_metric_importer"
+      autoload :CounterMetricsPersister, "hyrax/analytics/g4/counter_metrics_persister"
       autoload :RemoteDailyReport, "hyrax/analytics/g4/remote_daily_report"
-
-      ##
-      # @return [Configuration]
-      # @yieldparam config [Configuration]
-      def self.config
-        @config ||= Configuration.new
-        yield(@config) if block_given?
-        @config
-      end
-
-      class << self
-        delegate :row_coercer, to: :config
-      end
+      autoload :WorkMetadata, "hyrax/analytics/g4/work_metadata"
     end
   end
 end

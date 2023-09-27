@@ -32,14 +32,16 @@ module Hyrax
           (event_names_for_investigations + event_names_for_investigations).uniq
         end
 
-        ##
-        # @return [G4::Accumulator]
         def call
           accumulator = Accumulator.new(importer: self)
 
           RemoteDailyReport.call(importer: self) { |row| accumulator.add(row) }
 
-          accumulator
+          accumulator.each do |_, work_metrics_set|
+            CounterMetricsPersister.call(work_metrics_set: work_metrics_set)
+          end
+
+          accumulator.count
         end
       end
     end

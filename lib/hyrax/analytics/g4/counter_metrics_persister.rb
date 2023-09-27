@@ -3,7 +3,7 @@ module Hyrax
     module G4
       module CounterMetricsPersister
         ##
-        # Responsible to persisting the given works.
+        # Responsible for persisting the given work_metrics_set.
         #
         # @param work_metrics_set [G4::Accumulator::WorkMetricsSet]
         def self.call(work_metrics_set:)

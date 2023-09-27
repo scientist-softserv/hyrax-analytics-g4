@@ -33,6 +33,7 @@ module Hyrax
         end
 
         include Enumerable
+
         ##
         # @yieldparam work_id [String]
         # @yieldparam work_metrics_set [Accumulator::WorkMetricsSet]

@@ -15,21 +15,81 @@ module Hyrax
         :worktype,
         :year_of_publication,
         keyword_init: true
-      )
+      ) do
+        class_attribute :solr_names_to_attribute_names, default: [
+                          id: :work_id,
+                          has_model_ssim: :worktype,
+                          resource_type_tesim: :resource_type,
+                          date_ssi: :year_of_publication,
+                          creator_tesim: :author,
+                          publisher_tesim: :publisher,
+                          title_tesim: :title
+                        ]
+      end
+
       module WorkMetadata::ClassMethods
         module Hyrax
+          ##
+          # Fetch the work associated with the given :id and then cast that work's metadata
+          # attributes to the correct format.  We use the {G4.coerce_solr_document} to map the
+          # attributes we retrieved because there may be additional considerations on how we convert
+          # that information.
+          #
+          # @param id [String]
+          # @return [G4::WorkMetadata] when we find a match
+          # @return [NilClass] when we don't find a match in SOLR
           def fetch(id)
-            raise NotImplementedError, "#{self}.#{__method__}"
+            solr_keys = WorkMetadata.solr_names_to_attribute_names.keys.map(&:to_s)
+            document = ActiveFedora::SolrService.query("id:#{id}", { rows: 1, fl: solr_keys.join(", "), method: :post}).first
+            return if doc.blank?
+
+            attributes = WorkMetadata.solr_names_to_attribute_names.each_with_object({}) do |(solr_field, attribute_name), hash|
+              hash[attribute_name] = G4.coerce_metadata(key: attribute_name, value: document[solr_field.to_s])
+            end
+            # TODO: Inspect if we have a FileSet; if we don't we'll need to again query based on the object's parent id
+            new(**attributes)
           end
         end
 
         module Test
+          ##
+          # A mechanism for providing semi-random metadata.
+          #
+          # @param id [String]
+          # @return [G4::WorkMetadata]
           def fetch(id)
             new(
-              author: Faker::Name.name,
-              publisher: Faker::Company.name,
+              author: ["Dyan Schneider",
+                       "Rev. Jeromy Towne",
+                       "The Hon. Lacie Cummerata",
+                       "Lizzette Jacobs LLD",
+                       "Willian Wehner",
+                       "Hwa Champlin",
+                       "Dr. Kai Collins",
+                       "Sunny Mueller",
+                       "Kala Huel DC",
+                       "Kristina Klein"].shuffle[0],
+              publisher: ["Nienow Group",
+                          "Dietrich, Macejkovic and Bergstrom",
+                          "Wolf Inc",
+                          "Dickens Group",
+                          "Hodkiewicz LLC",
+                          "Bahringer, Hartmann and Pagac",
+                          "Windler, Spencer and Huel",
+                          "Schowalter-Dicki",
+                          "Miller-Hessel",
+                          "Langosh LLC"].shuffle[0],
               resource_type: "Article",
-              title: Faker::Book.title,
+              title: ["Surprised by Joy",
+                      "Mother Night",
+                      "A Farewell to Arms",
+                      "Stranger in a Strange Land",
+                      "Quo Vadis",
+                      "Frequent Hearses",
+                      "In Death Ground",
+                      "The Stars' Tennis Balls",
+                      "Let Us Now Praise Famous Men",
+                      "The Daffodil Sky"].shuffle[0],
               work_id: id,
               worktype: "GenericWork",
               year_of_publication: 1950 + rand(74),

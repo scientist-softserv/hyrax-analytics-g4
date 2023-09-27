@@ -6,8 +6,8 @@ module Hyrax
       class CounterMetricImporter
         ##
         # @note the default value is a holding value while I iterate.
-        def self.call(cname: "dev.commons-archive.org", property: "395286330", **kwargs)
-          new(cname: cname, property: property, **kwargs).call
+        def self.call(**kwargs)
+          new(**kwargs).call
         end
 
         # Yes there are duplications; this is because in some cases when I got to the work I see the
@@ -19,13 +19,14 @@ module Hyrax
                                                              "file-set-in-work-download",
                                                              "file-set-in-collection-download"]
 
-        def initialize(cname:, property:, start_date: 8.days.ago.to_date, end_date: 1.day.ago.to_date)
+        def initialize(cname:, property:, credentials:, **options)
           @cname = cname
-          @start_date = start_date
-          @end_date = end_date
+          @credentials = credentials
+          @start_date = options.fetch(:start_date) { G4.limit_to_this_many_days.days.ago.to_date }
+          @end_date = options.fetch(:end_date) { 1.day.ago.to_date }
           @property = property
         end
-        attr_reader :start_date, :end_date, :cname, :property
+        attr_reader :cname, :credentials, :end_date, :property, :start_date
         alias host_name cname
 
         ##

@@ -8,6 +8,7 @@ module Hyrax
       # {Hyrax::Analytics::G4} gem.
       class Configuration
         def initialize
+          @limit_to_this_many_days = 3
           @metadata_coercers = {}
           @attribute_names_to_solr_names = {
             work_id: :id,
@@ -18,6 +19,15 @@ module Hyrax
             publisher: :publisher_tesim,
             title: :title_tesim
           }
+        end
+
+        ##
+        # When we are writing to {Hyrax::CounterMetric}, we want to have a narrow window of time
+        # for which we are retrieving data; the idea being that we've already done stuff in the
+        # past.
+        attr_reader :limit_to_this_many_days
+        def limit_to_this_many_days=(value)
+          @limit_to_this_many_days = Integer(value)
         end
 
         attr_reader :attribute_names_to_solr_names

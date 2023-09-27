@@ -52,14 +52,13 @@ module Hyrax
         # @param limit [Integer]
         # @param offset [Integer]
         def initialize(importer:,
-                       credentials: "./config/analytics.json",
                        limit: 25_000,
                        offset: 0,
                        **_kwargs)
-          configure_client!(credentials)
           @importer = importer
           @limit = limit
           @offset = offset
+          configure_client!(importer.credentials)
         end
         attr_reader :client, :limit, :offset, :importer
         delegate :end_date, :event_names, :host_name, :property, :start_date, to: :importer

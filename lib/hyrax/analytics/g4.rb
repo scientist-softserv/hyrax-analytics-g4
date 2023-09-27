@@ -11,6 +11,7 @@ module Hyrax
       class Error < StandardError; end
 
       autoload :Accumulator, "hyrax/analytics/g4/accumulator"
+      autoload :Configuration, "hyrax/analytics/g4/configuration"
       autoload :CounterMetricImporter, "hyrax/analytics/g4/counter_metric_importer"
       autoload :CounterMetricsPersister, "hyrax/analytics/g4/counter_metrics_persister"
       autoload :RemoteDailyReport, "hyrax/analytics/g4/remote_daily_report"
@@ -28,6 +29,8 @@ module Hyrax
       #
       #     # Specifying that we find the :title value in the SolrDocument's :title_ssi "slot"
       #     config.register_attribute_map_to_solr_key(:title, solr_key: :title_ssi)
+      #
+      #     config.limit_to_this_many_days = 2
       #   end
       def self.config
         @config ||= Configuration.new
@@ -45,6 +48,10 @@ module Hyrax
       def self.coerce_metadata(key:, value:)
         coercer = config.coercer_for(key)
         coercer.call(value)
+      end
+
+      class << self
+        delegate :attribute_names_to_solr_names, :limit_to_this_many_days, to: :config
       end
     end
   end

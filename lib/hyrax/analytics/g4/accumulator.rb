@@ -7,6 +7,14 @@ module Hyrax
       # The Accumulator is responsible for taking a row and filing it away in the correct location
       # (via the {#add} method).  We're also concerned with the given row having an ID that may or
       # may not be for a Work or FileSet; hence using the {G4.row_coercer}.
+      #
+      # We need the accumulator for two primary reasons:
+      #
+      # 1. We do not {#add} in an orderly fashion; ideally we'd be adding rows by id and date;
+      #    instead we get them in a jumble.
+      # 2. The row we get might be for a fileset; and we want to coerce that into a work.  We do
+      #    that by leveraging {WorkMetadata.fetch} and caching the row's :id for that value.  This
+      #    way we collate file set's parent work metrics with work metrics
       class Accumulator
         ##
         # @param importer [CounterMetricImporter]

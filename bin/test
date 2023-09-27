@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "bundler/setup"
+require "hyrax/analytics/g4"
+
+if ENV['FAKE']
+  puts "Using fake interface for Google Analytics"
+  Hyrax::Analytics::G4::RemoteDailyReport.report_builder_class = Hyrax::Analytics::G4::RemoteDailyReport::Fake
+else
+  puts "Using live remote Google Analytics"
+end
+
+puts "Calling Hyrax::Analytics::G4::CounterMetricImporter.call"
+puts Hyrax::Analytics::G4::CounterMetricImporter.call

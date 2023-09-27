@@ -49,6 +49,3 @@ module Hyrax
     end
   end
 end
-
-# Provided as a convenience method for typing and testing.
-Report = Hyrax::Analytics::G4::CounterMetricImporter

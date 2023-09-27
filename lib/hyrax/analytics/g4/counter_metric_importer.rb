@@ -37,6 +37,8 @@ module Hyrax
         def call
           accumulator = Accumulator.new(importer: self)
 
+          # The daily report does not guarantee that we'll get back data in a well ordered manner
+          # (e.g. by id then date); as such we need to accumulate this information.
           RemoteDailyReport.call(importer: self) { |row| accumulator.add(row) }
 
           accumulator.each do |_, work_metrics_set|

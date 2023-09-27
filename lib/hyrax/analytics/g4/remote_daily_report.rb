@@ -25,13 +25,24 @@ module Hyrax
       # @see https://developers.google.com/analytics/devguides/reporting/data/v1/api-schema# For details on the dimensions and metrics schema
       class RemoteDailyReport
         ##
+        # @!group Class Attributes
+        #
+        # @!attribute report_builder_class
+        #   Provided as a means of creating a fake set of metrics.
+        #
+        #   @return [#call]
+        class_attribute :report_builder_class, default: self, instance_accessor: false
+        # @!endgroup Class Attributes
+        ##
+
+        ##
         # A convenience method for querying Google Analytics.
         #
         # @see #initialize
         # @see #call
         # @return [Array<Row>]
         def self.call(**kwargs, &block)
-          new(**kwargs).call(&block)
+          report_builder_class.new(**kwargs).call(&block)
         end
 
         ##
@@ -53,6 +64,8 @@ module Hyrax
         attr_reader :client, :limit, :offset, :importer
         delegate :end_date, :event_names, :host_name, :property, :start_date, to: :importer
 
+        ##
+        # @note This is a still uncertain way to do this.
         def configure_client!(credentials)
           @client = ::Google::Analytics::Data::V1beta::AnalyticsData::Client.new do |config|
             config.credentials = case credentials
@@ -68,22 +81,6 @@ module Hyrax
           end
         end
         private :configure_client!
-
-        ##
-        # Creating a Struct so we can see what the data is instead of relying on the positional nature
-        # of the returned results.
-        Row = Struct.new(:date, :event_name, :page_path, :host_name, :event_count, keyword_init: true) do
-          ##
-          # By convention the last element of the path is the identifier of the Work and/or FileSet
-          def id
-            page_path.split('/').last
-          end
-
-          ##
-          # Later in processing, we're going to want to lookup the work/fileSet by ID and we'll want
-          # to aggregate the events that are part of {EVENT_NAME_REQUESTS} and
-          # {EVENT_NAME_INVESTIGATIONS} to create a single record in {Hyrax::Counter}.
-        end
 
         ##
         # @return [Array<CounterMetricsReport::Row>] sorted by {CounterMetricsReport::Row#sort_order}
@@ -146,6 +143,51 @@ module Hyrax
         # rubocop:enable Metrics/AbcSize
         # rubocop:enable Metrics/BlockLength
         # rubocop:enable Metrics/MethodLength
+
+        ##
+        # Creating a Struct so we can see what the data is instead of relying on the positional nature
+        # of the returned results.
+        Row = Struct.new(:date, :event_name, :page_path, :host_name, :event_count, keyword_init: true) do
+          ##
+          # By convention the last element of the path is the identifier of the Work and/or FileSet
+          def id
+            page_path.split('/').last
+          end
+        end
+
+        class Fake < RemoteDailyReport
+          ##
+          # Exposed as a means for you dear code spelunker to generate your own page paths
+          class_attribute :page_path_generator, default: -> do
+            (1..20).map do |i|
+              "/concern/something/#{SecureRandom.base36(8)}"
+            end
+          end
+
+          def configure_client!(*); end
+
+          def page_paths
+            @page_paths ||= page_path_generator.call
+          end
+
+          def call
+            (start_date.to_date..end_date.to_date).each do |date|
+              page_paths.each do |page_path|
+                # Let's simulate the chance of not having entries for a work on a given date
+                next if rand(4).zero?
+                event_names.shuffle[0..rand(event_names.size)].each do |event_name|
+                  yield Row.new(
+                          page_path: page_path,
+                          date: date,
+                          event_name: event_name,
+                          host_name: host_name,
+                          event_count: 1 + rand(10)
+                        )
+                end
+              end
+            end
+          end
+        end
       end
     end
   end

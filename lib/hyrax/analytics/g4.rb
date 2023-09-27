@@ -27,7 +27,7 @@ module Hyrax
       #     end
       #
       #     # Specifying that we find the :title value in the SolrDocument's :title_ssi "slot"
-      #     config.attribute_names_to_solr_names[:title] = :title_ssi
+      #     config.register_attribute_map_to_solr_key(:title, solr_key: :title_ssi)
       #   end
       def self.config
           @config ||= Configuration.new

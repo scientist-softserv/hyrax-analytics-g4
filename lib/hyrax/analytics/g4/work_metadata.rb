@@ -7,7 +7,7 @@ module Hyrax
       # A data structure representing the work specific metadata we persist in the
       # {Hyrax::CounterMetrics}.
       #
-      # @see .solr_names_to_attribute_names
+      # @see {G4::Configuration.attribute_names_to_solr_names}
       WorkMetadata = Struct.new(
         :author,
         :publisher,

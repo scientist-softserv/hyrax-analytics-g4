@@ -11,6 +11,7 @@ module Hyrax
             __persist!(attributes: attributes)
           end
         end
+
         module ClassMethods
           module Hyrax
             def __persist!(attributes:)
@@ -19,6 +20,7 @@ module Hyrax
               record.update(attributes.except(:work_id, :date))
             end
           end
+
           module Test
             def __persist!(attributes:)
               puts attributes

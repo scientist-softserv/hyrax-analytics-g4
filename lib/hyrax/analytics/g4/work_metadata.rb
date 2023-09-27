@@ -32,7 +32,7 @@ module Hyrax
           # @return [NilClass] when we don't find a match in SOLR
           def fetch(id)
             solr_keys = G4.attribute_names_to_solr_names.values.map(&:to_s)
-            document = ActiveFedora::SolrService.query("id:#{id}", { rows: 1, fl: solr_keys.join(", "), method: :post}).first
+            document = ActiveFedora::SolrService.query("id:#{id}", { rows: 1, fl: solr_keys.join(", "), method: :post }).first
             return if doc.blank?
 
             attributes = G4.attribute_names_to_solr_names.each_with_object({}) do |(attribute_name, solr_field), hash|
@@ -61,7 +61,7 @@ module Hyrax
                        "Dr. Kai Collins",
                        "Sunny Mueller",
                        "Kala Huel DC",
-                       "Kristina Klein"].shuffle[0],
+                       "Kristina Klein"].sample,
               publisher: ["Nienow Group",
                           "Dietrich, Macejkovic and Bergstrom",
                           "Wolf Inc",
@@ -71,7 +71,7 @@ module Hyrax
                           "Windler, Spencer and Huel",
                           "Schowalter-Dicki",
                           "Miller-Hessel",
-                          "Langosh LLC"].shuffle[0],
+                          "Langosh LLC"].sample,
               resource_type: "Article",
               title: ["Surprised by Joy",
                       "Mother Night",
@@ -82,10 +82,10 @@ module Hyrax
                       "In Death Ground",
                       "The Stars' Tennis Balls",
                       "Let Us Now Praise Famous Men",
-                      "The Daffodil Sky"].shuffle[0],
+                      "The Daffodil Sky"].sample,
               work_id: id,
               worktype: "GenericWork",
-              year_of_publication: 1950 + rand(74),
+              year_of_publication: 1950 + rand(74)
             )
           end
         end

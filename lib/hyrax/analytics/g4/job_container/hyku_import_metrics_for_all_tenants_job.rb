@@ -30,7 +30,7 @@ module Hyrax
             end
           end
 
-          after_perform { |job| reenqueue }
+          after_perform { |_job| reenqueue }
 
           # After we're done performing the job enqueue a job for tomorrow night
           def reenqueue

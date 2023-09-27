@@ -30,9 +30,9 @@ module Hyrax
       #     config.register_attribute_map_to_solr_key(:title, solr_key: :title_ssi)
       #   end
       def self.config
-          @config ||= Configuration.new
-          yield(@config) if block_given?
-          @config
+        @config ||= Configuration.new
+        yield(@config) if block_given?
+        @config
       end
 
       ##

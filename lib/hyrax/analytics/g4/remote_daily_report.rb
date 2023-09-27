@@ -59,7 +59,7 @@ module Hyrax
                        credentials: "./config/analytics.json",
                        limit: 25_000,
                        offset: 0,
-                       **kwargs)
+                       **_kwargs)
           @client = ::Google::Analytics::Data::V1beta::AnalyticsData::Client.new do |config|
             config.credentials = case credentials
                                  when String
@@ -116,11 +116,17 @@ module Hyrax
                     {
                       filter: {
                         field_name: 'hostName',
-                        string_filter: { match_type: "EXACT", value: host_name, case_sensitive: false } }
+                        string_filter: { match_type: "EXACT", value: host_name, case_sensitive: false }
+                      }
                     }, {
                       filter: {
                         field_name: 'eventName',
-                        in_list_filter: { values: event_names.uniq } } }] } },
+                        in_list_filter: { values: event_names.uniq }
+                      }
+                    }
+                  ]
+                }
+              },
               limit: limit,
               offset: offset
             )

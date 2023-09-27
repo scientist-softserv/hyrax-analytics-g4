@@ -3,7 +3,7 @@
 require_relative "g4/version"
 require "google/analytics/data/v1beta"
 require 'active_support/all'
-require 'faker'
+require_relative 'g4/railtie' if defined?(Rails)
 
 module Hyrax
   module Analytics
@@ -21,9 +21,13 @@ module Hyrax
       #
       # @example
       #   Hyrax::Analytics::G4.config do |config|
+      #     # Registering a specific coercer for the given author.
       #     config.register_coercer(key: :author) do |value|
       #       Sushi::AuthorCoercion.serialize(value)
       #     end
+      #
+      #     # Specifying that we find the :title value in the SolrDocument's :title_ssi "slot"
+      #     config.attribute_names_to_solr_names[:title] = :title_ssi
       #   end
       def self.config
           @config ||= Configuration.new

@@ -6,6 +6,8 @@ module Hyrax
       ##
       # A data structure representing the work specific metadata we persist in the
       # {Hyrax::CounterMetrics}.
+      #
+      # @see .solr_names_to_attribute_names
       WorkMetadata = Struct.new(
         :author,
         :publisher,
@@ -15,17 +17,7 @@ module Hyrax
         :worktype,
         :year_of_publication,
         keyword_init: true
-      ) do
-        class_attribute :solr_names_to_attribute_names, default: [
-                          id: :work_id,
-                          has_model_ssim: :worktype,
-                          resource_type_tesim: :resource_type,
-                          date_ssi: :year_of_publication,
-                          creator_tesim: :author,
-                          publisher_tesim: :publisher,
-                          title_tesim: :title
-                        ]
-      end
+      )
 
       module WorkMetadata::ClassMethods
         module Hyrax
@@ -39,13 +31,14 @@ module Hyrax
           # @return [G4::WorkMetadata] when we find a match
           # @return [NilClass] when we don't find a match in SOLR
           def fetch(id)
-            solr_keys = WorkMetadata.solr_names_to_attribute_names.keys.map(&:to_s)
+            solr_keys = G4.attribute_names_to_solr_names.values.map(&:to_s)
             document = ActiveFedora::SolrService.query("id:#{id}", { rows: 1, fl: solr_keys.join(", "), method: :post}).first
             return if doc.blank?
 
-            attributes = WorkMetadata.solr_names_to_attribute_names.each_with_object({}) do |(solr_field, attribute_name), hash|
+            attributes = G4.attribute_names_to_solr_names.each_with_object({}) do |(attribute_name, solr_field), hash|
               hash[attribute_name] = G4.coerce_metadata(key: attribute_name, value: document[solr_field.to_s])
             end
+
             # TODO: Inspect if we have a FileSet; if we don't we'll need to again query based on the object's parent id
             new(**attributes)
           end

@@ -4,7 +4,18 @@ module Hyrax
       class Configuration
         def initialize
           @metadata_coercers = {}
+          @attribute_names_to_solr_names = {
+            work_id: :id,
+            worktype: :has_model_ssim,
+            resource_type: :resource_type_tesim,
+            year_of_publication: :date_ssi,
+            author: :creator_tesim,
+            publisher: :publisher_tesim,
+            title: :title_tesim
+          }
         end
+
+        attr_accessor :attribute_names_to_solr_names
 
         ##
         # Register a coercer for the given {Hyrax::CounterMetric}.

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Hyrax
   module Analytics
     module G4
@@ -22,9 +24,11 @@ module Hyrax
           end
 
           module Test
+            # rubocop:disable Rails/Output
             def __persist!(attributes:)
               puts attributes
             end
+            # rubocop:enable Rails/Output
           end
         end
         if defined?(Rails)

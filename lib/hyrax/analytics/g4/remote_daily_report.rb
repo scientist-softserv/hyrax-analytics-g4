@@ -37,29 +37,23 @@ module Hyrax
         ##
         # @param credentials [String, Hash] the credentials necessary for authenticating to the
         #        Google Analytics API.
-        #
-        # @param property [String] this is identifier of the property as indicated in the UI.  It is
-        #        not the analytics code (e.g. "G-RANDOM123") in the UI nor is it found in the values
-        #        of the analytics credentials JSON with keys of: "type", "project_id",
-        #        "private_key_id", "private_key", "client_email", "client_id", "auth_uri",
-        #        "token_uri", "auth_provider_x509_cert_url", "client_x509_cert_url",
-        #        "universe_domain").
-        #
-        # @param host_name [String] the host name (e.g. "sub.domain.com") there is likely a relation
-        #        between the host_name and the property; but for now I'm keeping these separate.  We
-        #        provide the host_name because the Hyrax's counter metrics table is partitioned on a
-        #        per tenant basis.
-        #
-        # @param start_date [Date, #iso8601]
-        # @param end_date [Date, #iso8601]
+        # @param importer [G4::CounterMetricImporter]
         # @param limit [Integer]
         # @param offset [Integer]
-        # @param event_names [Array<String>]
         def initialize(importer:,
                        credentials: "./config/analytics.json",
                        limit: 25_000,
                        offset: 0,
                        **_kwargs)
+          configure_client!(credentials)
+          @importer = importer
+          @limit = limit
+          @offset = offset
+        end
+        attr_reader :client, :limit, :offset, :importer
+        delegate :end_date, :event_names, :host_name, :property, :start_date, to: :importer
+
+        def configure_client!(credentials)
           @client = ::Google::Analytics::Data::V1beta::AnalyticsData::Client.new do |config|
             config.credentials = case credentials
                                  when String
@@ -72,12 +66,8 @@ module Hyrax
                                    credentials
                                  end
           end
-          @importer = importer
-          @limit = limit
-          @offset = offset
         end
-        attr_reader :client, :limit, :offset, :importer
-        delegate :end_date, :event_names, :host_name, :property, :start_date, to: :importer
+        private :configure_client!
 
         ##
         # Creating a Struct so we can see what the data is instead of relying on the positional nature
@@ -97,7 +87,12 @@ module Hyrax
 
         ##
         # @return [Array<CounterMetricsReport::Row>] sorted by {CounterMetricsReport::Row#sort_order}
+        # rubocop:disable Metrics/AbcSize
+        # rubocop:disable Metrics/BlockLength
+        # rubocop:disable Metrics/MethodLength
         def call
+          # Getting a local binding of the provided offset so we can increment that offset.
+          offset = self.offset.dup
           loop do
             # For details on the schema: https://developers.google.com/analytics/devguides/reporting/data/v1/api-schema
             # For examples in the wild: https://github.com/JasonBarnabe/greasyfork/blob/master/lib/google_analytics.rb
@@ -148,6 +143,9 @@ module Hyrax
             offset += limit
           end
         end
+        # rubocop:enable Metrics/AbcSize
+        # rubocop:enable Metrics/BlockLength
+        # rubocop:enable Metrics/MethodLength
       end
     end
   end

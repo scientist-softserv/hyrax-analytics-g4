@@ -50,6 +50,7 @@ module Hyrax
           #
           # @param id [String]
           # @return [G4::WorkMetadata]
+          # rubocop:disable Metrics/MethodLength
           def fetch(id)
             new(
               author: ["Dyan Schneider",
@@ -88,6 +89,7 @@ module Hyrax
               year_of_publication: 1950 + rand(74)
             )
           end
+          # rubocop:enable Metrics/MethodLength
         end
       end
 

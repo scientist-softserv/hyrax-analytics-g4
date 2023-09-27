@@ -19,15 +19,14 @@ module Hyrax
                                                              "file-set-in-work-download",
                                                              "file-set-in-collection-download"]
 
-        def initialize(cname:, property:, credentials:, **options)
-          @cname = cname
+        def initialize(host_name:, property:, credentials:, **options)
+          @host_name = host_name
           @credentials = credentials
           @start_date = options.fetch(:start_date) { G4.limit_to_this_many_days.days.ago.to_date }
           @end_date = options.fetch(:end_date) { 1.day.ago.to_date }
           @property = property
         end
-        attr_reader :cname, :credentials, :end_date, :property, :start_date
-        alias host_name cname
+        attr_reader :host_name, :credentials, :end_date, :property, :start_date
 
         ##
         # @return [Array<String>]

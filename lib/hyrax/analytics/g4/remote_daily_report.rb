@@ -157,11 +157,11 @@ module Hyrax
         class Fake < RemoteDailyReport
           ##
           # Exposed as a means for you dear code spelunker to generate your own page paths
-          class_attribute :page_path_generator, default: -> do
-            (1..20).map do |i|
+          class_attribute :page_path_generator, default: lambda {
+            (1..20).map do |_i|
               "/concern/something/#{SecureRandom.base36(8)}"
             end
-          end
+          }
 
           def configure_client!(*); end
 

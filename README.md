@@ -29,6 +29,39 @@ There are a few points of configuration:
 1. The [Hyrax::Analytics::G4::Configuration](./lib/hyrax/analytics/g4/configuration.rb), which has an example configuration in [Hyrax::Analytics::G4.config](./lib/hyrax/analytics/g4.rb)
 2. Various `class_attributes` declared throughout the application (for less "public" but still valid configuration)
 
+### Testing with Hyrax and/or Hyku
+
+I'm in the process of testing both jobs and the general inline functionality.  In a Hyku application, I'm using the following "test script" written in `bin/test-analytics` (remember `chmod +x bin/test-analytics`:
+
+```ruby
+#!/usr/bin/env ruby
+
+require_relative '../config/boot'
+
+# Don't try to query Google Analytics but instead rely on fake data.
+Hyrax::Analytics::G4::RemoteDailyReport.report_builder_class = Hyrax::Analytics::G4::RemoteDailyReport::Fake
+
+# Since we have fake data, let's go ahead and grab a few existing works and a few non-existing works
+# and say that we have analytics for them.
+#
+# We do not need to declare the lambda within the account loop, because that *should* be handled
+# in the Account#switch!
+Hyrax::Analytics::G4::RemoteDailyReport::Fake.page_path_generator = -> do
+  GenericWork.all(limit: 20).map { |work| "/concern/generic_work/#{work.id}" } + 
+  (1..10).map { "/concern/something/#{SecureRandom.base36(8)}" }
+end
+
+Account.all.each do |account|
+  account.switch! do
+    Hyrax::Analytics::G4::CounterMetricImporter.call(host_name: account.cname, property: '1234', credentials: nil)
+  end
+end
+```
+
+For Hyrax, ignore the Account antics and provide your own =:host_name=.
+
+Once I have that working, I'll move on towards testing the jobs.
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. You can also run `bin/console` for an interactive prompt that will allow you to experiment.

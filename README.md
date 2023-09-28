@@ -53,7 +53,7 @@ end
 Account.find_each do |account|
   switch!(account.cname)
 
-  Hyrax::Analytics::G4::CounterMetricImporter.call(cname: account.cname, property: '1234', credentials: nil, start_date: 8.days.ago.to_date)
+  Hyrax::Analytics::G4::CounterMetricImporter.call(host_name: account.cname, property: '1234', credentials: nil, start_date: 8.days.ago.to_date)
 end
 ```
 

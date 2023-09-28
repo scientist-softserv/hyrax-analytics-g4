@@ -98,7 +98,8 @@ You’ll need to add the path to that file to your ENV: (e.g. `export ANALYTICS_
 
 That will prompt you to download a JSON file.
 
-I have not yet successfully retrieved any data, but that might be because there’s some configuration issue.
+You will also need to get the Google Analytics property number for the above Profile.  With those in hand you can begin.
+
 
 
 ## Contributing

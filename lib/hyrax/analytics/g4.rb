@@ -38,7 +38,12 @@ module Hyrax
       #     # Specifying that we find the :title value in the SolrDocument's :title_ssi "slot"
       #     config.register_attribute_map_to_solr_key(:title, solr_key: :title_ssi)
       #
+      #     # We'll fetch data that's this many days old or newer.  Probably a good idea to peek
+      #     # back a 2 or 3 days as the data "settles" into consistency.
       #     config.limit_to_this_many_days = 2
+      #
+      #     # That's probably too big of a number; consider something smaller?
+      #     config.google_analytics_page_limit = 1_000_000
       #   end
       def self.config
         @config ||= G4::Configuration.new
@@ -59,7 +64,7 @@ module Hyrax
       end
 
       class << self
-        delegate :attribute_names_to_solr_names, :limit_to_this_many_days, to: :config
+        delegate :attribute_names_to_solr_names, :google_analytics_page_limit, :limit_to_this_many_days, to: :config
       end
     end
   end

@@ -6,7 +6,7 @@ module Hyrax
       ##
       # @note we do not automatically enqueue this job, because the host_name and property would
       #       continue to propogate.  In the case of this running within Hyku, the
-      #       {JobContainer::HykuImportMetricsForAllTenantsJob} handles the auto-reenquing; in
+      #       {G4::HykuImportMetricsForAllTenantsJob} handles the auto-reenquing; in
       #       part because it can requiry the host_name and property information.
       class ImportMetricsJob < ::Hyrax::ApplicationJob
         ##

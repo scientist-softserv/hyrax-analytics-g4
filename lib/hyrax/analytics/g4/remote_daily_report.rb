@@ -10,8 +10,9 @@ module Hyrax
       # To populate the counter metric we need the following dimensions:
       #
       # - date :: the date that the event occurred
-      # - eventName :: the name of the event we're interested in (see {EVENT_NAME_INVESTIGATIONS}
-      #                and {EVENT_NAME_REQUESTS}).
+      # - eventName :: the name of the event we're interested in (see
+      #                {CounterMetricImporter#event_names}).
+      #
       # - pagePath :: path on the host name, without query parameters
       #               (e.g. /concerns/generic_work/1234-abcd)
       # - hostName :: technically not needed but useful in debugging the results.  (see {#host_name})
@@ -25,10 +26,26 @@ module Hyrax
       # @see https://developers.google.com/analytics/devguides/reporting/data/v1/api-schema# For details on the dimensions and metrics schema
       class RemoteDailyReport
         ##
+        # Creating a Struct so we can see what the data is instead of relying on the positional nature
+        # of the returned results.  This structure describes what other
+        Row = Struct.new(:date, :event_name, :page_path, :host_name, :event_count, keyword_init: true) do
+          ##
+          # By convention the last element of the path is the identifier of the Work and/or FileSet
+          def id
+            page_path.split('/').last
+          end
+        end
+
+        ##
         # @!group Class Attributes
         #
         # @!attribute report_builder_class
         #   Provided as a means of creating a fake set of metrics.
+        #
+        #   @example
+        #     ##
+        #     # To leverage the {RemoteDailyReport::Fake} implementation.
+        #     Hyrax::Analytics::G4::RemoteDailyReport.report_builder_class = Hyrax::Analytics::G4::RemoteDailyReport::Fake
         #
         #   @return [#call]
         class_attribute :report_builder_class, default: self, instance_accessor: false
@@ -46,13 +63,11 @@ module Hyrax
         end
 
         ##
-        # @param credentials [String, Hash] the credentials necessary for authenticating to the
-        #        Google Analytics API.
-        # @param importer [G4::CounterMetricImporter]
+        # @param importer [G4::CounterMetricImporter] this contains lots of configuration logic.
         # @param limit [Integer]
         # @param offset [Integer]
         def initialize(importer:,
-                       limit: 25_000,
+                       limit: G4.google_analytics_page_limit,
                        offset: 0,
                        **_kwargs)
           @importer = importer
@@ -82,7 +97,7 @@ module Hyrax
         private :configure_client!
 
         ##
-        # @return [Array<CounterMetricsReport::Row>] sorted by {CounterMetricsReport::Row#sort_order}
+        # @return [Array<CounterMetricsReport::Row>] sorted by CounterMetricsReport::Row#id
         # rubocop:disable Metrics/AbcSize
         # rubocop:disable Metrics/BlockLength
         # rubocop:disable Metrics/MethodLength
@@ -144,19 +159,21 @@ module Hyrax
         # rubocop:enable Metrics/MethodLength
 
         ##
-        # Creating a Struct so we can see what the data is instead of relying on the positional nature
-        # of the returned results.
-        Row = Struct.new(:date, :event_name, :page_path, :host_name, :event_count, keyword_init: true) do
-          ##
-          # By convention the last element of the path is the identifier of the Work and/or FileSet
-          def id
-            page_path.split('/').last
-          end
-        end
-
+        # A means of faking data from Google Analytics.  Trust me, coordinating wedding analytics
+        # data to works in your local instance is challenging.  Why not just create some fake
+        # analytics for testing?
+        #
+        # @see RemoteDailyReport.report_builder_class
         class Fake < RemoteDailyReport
           ##
-          # Exposed as a means for you dear code spelunker to generate your own page paths
+          # Exposed as a means for you dear code spelunker to generate your own page paths.
+          #
+          # @example
+          #   Hyrax::Analytics::G4::RemoteDailyReport::Fake.page_path_generator = -> do
+          #     GenericWork.limit(10).each do |gw|
+          #       "/concern/generic_work/#{gw.id}"
+          #     end
+          #   end
           class_attribute :page_path_generator, default: lambda {
             (1..20).map do |_i|
               "/concern/something/#{SecureRandom.base36(8)}"

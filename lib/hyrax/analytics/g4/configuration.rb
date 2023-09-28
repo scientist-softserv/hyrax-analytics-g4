@@ -8,6 +8,7 @@ module Hyrax
       # {Hyrax::Analytics::G4} gem.
       class Configuration
         def initialize
+          @google_analytics_page_limit = 25_000
           @limit_to_this_many_days = 3
           @metadata_coercers = {}
           @attribute_names_to_solr_names = {
@@ -19,6 +20,15 @@ module Hyrax
             publisher: :publisher_tesim,
             title: :title_tesim
           }
+        end
+
+        ##
+        # The number of records to fetch per request to Google Analytics API.
+        #
+        # @return [Integer]
+        attr_reader :google_analytics_page_limit
+        def google_analytics_page_limit=(value)
+          @google_analytics_page_limit = Integer(value)
         end
 
         ##

@@ -7,7 +7,7 @@ module Hyrax
       # A data structure representing the work specific metadata we persist in the
       # {Hyrax::CounterMetrics}.
       #
-      # @see {G4::Configuration.attribute_names_to_solr_names}
+      # @see G4::Configuration.attribute_names_to_solr_names
       WorkMetadata = Struct.new(
         :author,
         :publisher,
@@ -23,7 +23,7 @@ module Hyrax
         module Hyrax
           ##
           # Fetch the work associated with the given :id and then cast that work's metadata
-          # attributes to the correct format.  We use the {G4.coerce_solr_document} to map the
+          # attributes to the correct format.  We use the {G4.coerce_metadata} function to map the
           # attributes we retrieved because there may be additional considerations on how we convert
           # that information.
           #

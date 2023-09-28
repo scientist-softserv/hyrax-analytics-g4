@@ -6,7 +6,7 @@ module Hyrax
       ##
       # The Accumulator is responsible for taking a row and filing it away in the correct location
       # (via the {#add} method).  We're also concerned with the given row having an ID that may or
-      # may not be for a Work or FileSet; hence using the {G4.row_coercer}.
+      # may not be for a Work or FileSet; hence using the {WorkMetadata.fetch} function.
       #
       # We need the accumulator for two primary reasons:
       #

@@ -3,6 +3,11 @@
 module Hyrax
   module Analytics
     module G4
+      ##
+      # The {.call} method is responsible for persisting the accumulated metrics for a work into a
+      # metrics database.
+      #
+      # @see .call
       module CounterMetricsPersister
         ##
         # Responsible for persisting the given work_metrics_set.
@@ -33,7 +38,7 @@ module Hyrax
           end
         end
       end
-      if defined?(Rails)
+      if defined?(Hyrax::Engine)
         CounterMetricsPersister.extend(CounterMetricsPersister::ClassMethods::Hyrax)
       else
         CounterMetricsPersister.extend(CounterMetricsPersister::ClassMethods::Test)

@@ -20,6 +20,8 @@ module Hyrax
       autoload :Configuration, "hyrax/analytics/g4/configuration"
       autoload :CounterMetricImporter, "hyrax/analytics/g4/counter_metric_importer"
       autoload :CounterMetricsPersister, "hyrax/analytics/g4/counter_metrics_persister"
+      autoload :HykuImportMetricsForAllTenantsJob, "hyrax/analytics/g4/hyku_import_metrics_for_all_tenants_job" if defined?(Hyku)
+      autoload :ImportMetricsJob, "hyrax/analytics/g4/import_metrics_job" if defined?(Hyrax::Engine)
       autoload :RemoteDailyReport, "hyrax/analytics/g4/remote_daily_report"
       autoload :WorkMetadata, "hyrax/analytics/g4/work_metadata"
 

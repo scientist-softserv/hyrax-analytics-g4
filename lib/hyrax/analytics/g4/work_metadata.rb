@@ -93,7 +93,7 @@ module Hyrax
         end
       end
 
-      if defined?(Rails)
+      if defined?(Hyrax::Engine)
         WorkMetadata.extend(WorkMetadata::ClassMethods::Hyrax)
       else
         WorkMetadata.extend(WorkMetadata::ClassMethods::Test)

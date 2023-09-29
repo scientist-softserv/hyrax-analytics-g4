@@ -1,5 +1,18 @@
 # Hyrax::Analytics::G4
 
+<details open><summary>Table of Contents</summary>
+
+  - [Installation](#installation)
+  - [Usage](#usage)
+    - [Testing with Hyrax and/or Hyku](#testing-with-hyrax-and/or-hyku)
+    - [Interfaces and Expanding Possibilites](#interfaces-and-expanding-possibilites)
+  - [Development](#development)
+    - [But Where are My Tests?](#but-where-are-my-tests?)
+    - [Querying Data](#querying-data)
+  - [Contributing](#contributing)
+  
+</details>
+
 The `Hyrax::Analytics::G4` gem is intended to replace the current Google Analytics version 3 implementation of Hyrax; defined by the Legato interface.  The module is named such that it could be discovered / leveraged in the [Hyrax::Analytics module](https://github.com/samvera/hyrax/blob/f14958e665535be2696dc1cdf9e205d6fc54e668/app/services/hyrax/analytics.rb).
 
 As of <2023-09-25 Mon> this is being built as prototype to explore the G4 interface and beging building the corresponding queries to provide feature parity with the past implementation.  As of <2023-09-27 Wed> this gem has shifted as a means to fetch the Google Analytics information via the G4 API and then write that information to the Hyrax::CounterMetric model.  It's focus is on exposing metrics via the [SUSHI counter metrics developed for Palni/Palci](https://github.com/scientist-softserv/palni-palci/blob/6e8793dacd37759ef2166aa3854c1c6b169ae78e/app/models/sushi.rb).
@@ -20,7 +33,6 @@ Add to you `Gemfile`:
 ```ruby
 gem "hyrax-analytics-g4", github: "scientist-softserv/hyrax-analytics-g4"
 ```
-
 
 ## Usage
 
@@ -60,6 +72,12 @@ end
 For Hyrax, ignore the Account antics and provide your own =:host_name=.
 
 Once I have that working, I'll move on towards testing the jobs.
+
+### Interfaces and Expanding Possibilites
+
+Given that I'm able to swap out live querying of Google with the [Hyrax::Analytics::G4::RemoteDailyReport::Fake](./lib/hyrax/analytics/g4/remote_daily_report.rb), I believe this could be repurposed for the fetching data from Matomo and caching in [Hyrax::CounterMetrics](https://github.com/samvera/hyrax/blob/main/app/models/hyrax/counter_metric.rb).  Which highlights that the name of this *unpublished* gem is perhaps incorrect.
+
+Perhaps `Hyrax::MetricsCaching`?
 
 ## Development
 
